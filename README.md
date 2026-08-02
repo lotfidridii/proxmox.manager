@@ -36,8 +36,8 @@ A web UI to manage **Proxmox VE (PVE)** and **Proxmox Backup Server (PBS)**:
 ### 1. Clone this repository
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/proxmox-manager-deploy.git
-cd proxmox-manager-deploy
+git clone https://github.com/lotfidridii/proxmox.manager.git
+cd proxmox.manager
 ```
 
 > Rename the repo as you like when you create it on GitHub. Update the clone URL accordingly.
@@ -63,13 +63,21 @@ openssl rand -hex 32   # use for ENCRYPTION_KEY
 openssl rand -hex 32   # use for SODIUM_SECRET_KEY
 ```
 
-Also set a strong `POSTGRES_PASSWORD`.
+Also set a strong `POSTGRES_PASSWORD` and matching `DATABASE_URL`.
+
+**Important:** characters like `@ : / # ? &` in the DB password break the connection string unless URL-encoded in `DATABASE_URL` (e.g. `@` → `%40`). Simplest: use a password without those characters, or set:
+
+```env
+POSTGRES_PASSWORD=Pr0xm0x@Pp
+DATABASE_URL=postgresql://proxmox-manager:Pr0xm0x%40Pp@db:5432/proxmox-manager?schema=public
+```
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `POSTGRES_DB` | yes | Database name |
 | `POSTGRES_USER` | yes | Database user |
-| `POSTGRES_PASSWORD` | yes | Database password |
+| `POSTGRES_PASSWORD` | yes | Database password (same value Postgres was initialized with) |
+| `DATABASE_URL` | yes | Full URL for Prisma; encode special chars in the password |
 | `FRONTEND_URL` | yes | Public UI URL (CORS), e.g. `http://localhost:3000` |
 | `NEXT_PUBLIC_API_URL` | recommended | Browser-facing API base, e.g. `http://localhost:5000/api` |
 | `JWT_SECRET` | yes | Signs auth tokens |
@@ -211,6 +219,7 @@ If users open the app as `https://proxmox-manager.example.com`:
 | Symptom | What to try |
 |---------|-------------|
 | Backend unhealthy / restarting | `docker compose logs backend` — often bad DB password, migrations, or missing secrets |
+| `P1000: Authentication failed` | Password special chars (especially `@`) not URL-encoded in `DATABASE_URL`, **or** Postgres volume was created with an older password — fix `.env`, then `docker compose down -v` and `up -d` again (wipes DB data) |
 | Cannot log in on a fresh install | Run `docker compose exec backend node prisma/seed.js` |
 | UI loads but API calls fail | Confirm backend health; check `FRONTEND_URL` / CORS; ensure ports `3000`/`5000` match how you browse |
 | Cannot reach Proxmox | From the host, verify TCP to Proxmox (`8006`). Containers must route to that network |
