@@ -1,0 +1,12 @@
+.env
+*.env
+!.env.example
+
+# Local overrides
+docker-compose.override.yml
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
