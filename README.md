@@ -65,12 +65,7 @@ openssl rand -hex 32   # use for SODIUM_SECRET_KEY
 
 Also set a strong `POSTGRES_PASSWORD` and matching `DATABASE_URL`.
 
-**Important:** characters like `@ : / # ? &` in the DB password break the connection string unless URL-encoded in `DATABASE_URL` (e.g. `@` → `%40`). Simplest: use a password without those characters, or set:
-
-```env
-POSTGRES_PASSWORD=Pr0xm0x@Pp
-DATABASE_URL=postgresql://proxmox-manager:Pr0xm0x%40Pp@db:5432/proxmox-manager?schema=public
-```
+**Important:** characters like `@ : / # ? &` in the DB password break the connection string unless URL-encoded in `DATABASE_URL` (e.g. `@` → `%40`). Simplest: use a password without those characters.
 
 | Variable | Required | Description |
 |----------|----------|-------------|
